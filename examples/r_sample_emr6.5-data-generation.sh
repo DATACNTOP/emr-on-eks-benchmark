@@ -7,7 +7,7 @@
 # export EMRCLUSTER_NAME=emr-on-eks-nvme    
 # export AWS_REGION=us-east-1
 export ACCOUNTID=$(aws sts get-caller-identity --query Account --output text)                    
-export VIRTUAL_CLUSTER_ID=$(aws emr-containers list-virtual-clusters --query "virtualClusters[?name == '$EMRCLUSTER_NAME' && state == 'RUNNING'].id" --output text)
+export VIRTUAL_CLUSTER_ID=$(aws emr-containers list-virtual-clusters --query "virtualClusters[?name == '$EMR_VIRTUAL_CLUSTER_NAME' && state == 'RUNNING'].id" --output text)
 export EMR_ROLE_ARN=arn:aws:iam::$ACCOUNTID:role/${EMRCLUSTER_NAME}-execution-role
 # export S3BUCKET=$EMRCLUSTER_NAME-$ACCOUNTID-$AWS_REGION
 export S3BUCKET=emr-eks-${ACCOUNT_ID}-${AWS_REGION}
