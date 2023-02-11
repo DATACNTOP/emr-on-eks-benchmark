@@ -18,7 +18,7 @@ echo $ACCOUNTID $VIRTUAL_CLUSTER_ID $EMR_ROLE_ARN $S3BUCKET $ECR_URL
 
 aws emr-containers start-job-run \
 --virtual-cluster-id $VIRTUAL_CLUSTER_ID \
---name tpcds-benchmark-datagen \
+--name tpcds-benchmark-datagen-3t \
 --execution-role-arn $EMR_ROLE_ARN \
 --release-label emr-6.5.0-latest \
 --job-driver '{
