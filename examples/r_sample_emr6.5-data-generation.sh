@@ -8,7 +8,8 @@
 # export AWS_REGION=us-east-1
 export ACCOUNTID=$(aws sts get-caller-identity --query Account --output text)                    
 export VIRTUAL_CLUSTER_ID=$(aws emr-containers list-virtual-clusters --query "virtualClusters[?name == '$EMR_VIRTUAL_CLUSTER_NAME' && state == 'RUNNING'].id" --output text)
-export EMR_ROLE_ARN=arn:aws:iam::$ACCOUNTID:role/${EMR_VIRTUAL_CLUSTER_NAME}-execution-role
+# export EMR_ROLE_ARN=arn:aws:iam::$ACCOUNTID:role/${EMR_VIRTUAL_CLUSTER_NAME}-execution-role
+export EMR_ROLE_ARN=arn:aws:iam::$ACCOUNTID:role/EMRContainers-JobExecutionRole
 # export S3BUCKET=$EMRCLUSTER_NAME-$ACCOUNTID-$AWS_REGION
 export S3BUCKET=emr-eks-${ACCOUNT_ID}-${AWS_REGION}
 export ECR_URL="$ACCOUNTID.dkr.ecr.$AWS_REGION.amazonaws.com"
