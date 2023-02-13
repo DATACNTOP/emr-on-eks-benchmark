@@ -11,7 +11,8 @@ export VIRTUAL_CLUSTER_ID=$(aws emr-containers list-virtual-clusters --query "vi
 # export EMR_ROLE_ARN=arn:aws:iam::$ACCOUNTID:role/${EMR_VIRTUAL_CLUSTER_NAME}-execution-role
 export EMR_ROLE_ARN=arn:aws:iam::$ACCOUNTID:role/EMRContainers-JobExecutionRole
 # export S3BUCKET=$EMRCLUSTER_NAME-$ACCOUNTID-$AWS_REGION
-export S3BUCKET=emr-eks-${ACCOUNT_ID}-${AWS_REGION}
+# export S3BUCKET=emr-eks-${ACCOUNT_ID}-${AWS_REGION}
+export S3BUCKET=$EMR_EKS_BUCKET
 export ECR_URL="$ACCOUNTID.dkr.ecr.$AWS_REGION.amazonaws.com"
 
 echo $ACCOUNTID $VIRTUAL_CLUSTER_ID $EMR_ROLE_ARN $S3BUCKET $ECR_URL
@@ -24,7 +25,7 @@ aws emr-containers start-job-run \
 --job-driver '{
   "sparkSubmitJobDriver": {
       "entryPoint": "local:///usr/lib/spark/examples/jars/eks-spark-benchmark-assembly-1.0.jar",
-      "entryPointArguments":["s3://'$S3BUCKET'/TPCDS-TEST/100G-partitioned","/opt/tpcds-kit/tools","parquet","100","200","true","true","true"],
+      "entryPointArguments":["s3://'$S3BUCKET'/benchmark/TPC-DS/100G-partitioned","/opt/tpcds-kit/tools","parquet","100","200","true","true","true"],
       "sparkSubmitParameters": "--class com.amazonaws.eks.tpcds.DataGeneration --conf spark.driver.cores=10 --conf spark.driver.memory=10G  --conf spark.executor.cores=11 --conf spark.executor.memory=15G --conf spark.executor.instances=26"}}' \
 --configuration-overrides '{
     "applicationConfiguration": [
