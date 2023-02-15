@@ -30,12 +30,14 @@ do
 done
 
 jobname="tpcds-benchmark-emr-eks-100g-"$testname
+podNamePrefix=$(echo "$jobname" | awk '{print tolower($0)}')
 
 echo "EMRJobName: $jobname";
 echo "TestName: $testname";
 echo "Iterations: $iterations";
 echo "EMRReleaseLable: $releaseLabel";
 echo "DynamicAllocation: $dynamicAllocation";
+echo "PodNamePrefix: $podNamePrefix";
 
 
 if [ "$testname" ]
@@ -70,7 +72,7 @@ aws emr-containers start-job-run \
           "spark.kubernetes.driver.limit.cores": "4.1",
           "spark.driver.memoryOverhead": "1000",
           "spark.executor.memoryOverhead": "2G",
-          "spark.kubernetes.executor.podNamePrefix": "'"$jobname"'",
+          "spark.kubernetes.executor.podNamePrefix": "'"$podNamePrefix"'",
           "spark.executor.defaultJavaOptions": "-verbose:gc -XX:+UseParallelGC -XX:InitiatingHeapOccupancyPercent=70"
          }}
     ], 
