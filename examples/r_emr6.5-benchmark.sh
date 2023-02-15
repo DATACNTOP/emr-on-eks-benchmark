@@ -29,7 +29,7 @@ do
     esac
 done
 
-jobname="tpcds-benchmark-emr-eks-100g-"$testname
+jobname="tpcds-benchmark-emr-eks-3t-"$testname
 podNamePrefix=$(echo "$jobname" | awk '{print tolower($0)}')
 
 echo "EMRJobName: $jobname";
