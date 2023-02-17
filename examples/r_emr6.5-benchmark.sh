@@ -86,3 +86,6 @@ aws emr-containers start-job-run \
         }
       }
     }'
+    
+        #   "spark.kubernetes.node.selector.eks.amazonaws.com/nodegroup": "C7g_4",
+    
