@@ -24,7 +24,7 @@ dynamicAllocation=false
 
 # echo "Will run $iterations iterations."
 
-while getopts t:i:d:r flag
+while getopts j:t:i:d:r flag
 do
     case "${flag}" in
         j) jobname="${OPTARG}";;

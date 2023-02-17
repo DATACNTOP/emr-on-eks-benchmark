@@ -12,12 +12,14 @@ export EMR_ROLE_ARN=arn:aws:iam::$ACCOUNTID:role/EMRContainers-JobExecutionRole
 export S3BUCKET=$EMR_EKS_BUCKET
 export ECR_URL="$ACCOUNTID.dkr.ecr.$AWS_REGION.amazonaws.com"
 
+CW_LOG_GROUP="/emr-on-eks-logs/${EMR_VIRTUAL_CLUSTER_NAME}" # Create CW Log group if not exist
+
 iterations=1
 testname=""
 releaseLabel="emr-6.5.0-latest"
 dynamicAllocation=false
 
-while getopts t:i:d:r flag
+while getopts j:t:i:d:r flag
 do
     case "${flag}" in
         j) jobname="${OPTARG}";;
@@ -61,8 +63,8 @@ aws emr-containers start-job-run \
         "classification": "spark-defaults", 
         "properties": {
           "spark.kubernetes.container.image": "'$ECR_URL'/eks-spark-benchmark:emr6.5",
-          "spark.kubernetes.driver.podTemplateFile": "s3://'$S3BUCKET'/code/emr-on-eks-benchmark/examples/pod-template/driver-pod-template.yaml",
-          "spark.kubernetes.executor.podTemplateFile": "s3://'$S3BUCKET'/code/emr-on-eks-benchmark/examples/pod-template/executor-pod-template.yaml",
+          "spark.kubernetes.driver.podTemplateFile": "s3://'$S3BUCKET'/code/emr-on-eks-benchmark/examples/pod-template/r_driver-pod-template.yaml",
+          "spark.kubernetes.executor.podTemplateFile": "s3://'$S3BUCKET'/code/emr-on-eks-benchmark/examples/pod-template/r_executor-pod-template.yaml",
           "spark.local.dir" : "/data1,/data2",
           "spark.dynamicAllocation.enabled": "'$dynamicAllocation'",
           "spark.shuffle.service.enabled": "'$dynamicAllocation'",
@@ -76,5 +78,11 @@ aws emr-containers start-job-run \
           "spark.executor.defaultJavaOptions": "-verbose:gc -XX:+UseParallelGC -XX:InitiatingHeapOccupancyPercent=70"
          }}
     ], 
-    "monitoringConfiguration": {
-      "s3MonitoringConfiguration": {"logUri": "s3://'$S3BUCKET'/elasticmapreduce/emr-containers"}}}'
+        "monitoringConfiguration": {
+          "persistentAppUI":"ENABLED",
+          "cloudWatchMonitoringConfiguration": {
+            "logGroupName":"'"$CW_LOG_GROUP"'",
+            "logStreamNamePrefix":"'"$jobname"'"
+        }
+      }
+    }'
