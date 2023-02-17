@@ -39,6 +39,9 @@ RUN \
     apt-get install sbt && \
     sbt -Dsbt.rootdir=true sbtVersion
 
+# Install 
+RUN \
+    apt-get install git -y
 
 FROM builder AS sbt
 
