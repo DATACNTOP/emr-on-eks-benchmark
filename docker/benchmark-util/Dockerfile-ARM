@@ -2,6 +2,10 @@
 # // SPDX-License-Identifier: MIT-0
 ARG SPARK_BASE_IMAGE=public.ecr.aws/w5m3x7g4/spark:3.1.2_hadoop_3.3.1
 
+#test java 8
+FROM arm64v8/openjdk:8 AS builder
+#FROM openjdk:8-jdk-slim AS builder
+
 FROM amazonlinux:2 as tpc-toolkit
 
 ENV TPCDS_KIT_VERSION "master"
@@ -12,8 +16,10 @@ RUN yum update -y && \
     cd /tmp/tpcds-kit/tools && \
     make OS=LINUX
 
+#For ARM, need to compile in Graviton instance
+FROM hseeberger/scala-sbt:8u312_1.5.7_3.1.0 as sbt
 
-FROM mozilla/sbt:11.0.13_1.6.2 as sbt
+#FROM builder AS sbt
 # Build the Databricks SQL perf library
 RUN git clone https://github.com/aws-samples/emr-on-eks-benchmark.git /tmp/emr-on-eks-benchmark && \
     cd /tmp/emr-on-eks-benchmark/spark-sql-perf/ && \
