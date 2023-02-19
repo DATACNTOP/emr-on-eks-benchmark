@@ -7,7 +7,8 @@
 export ACCOUNTID=$(aws sts get-caller-identity --query Account --output text)                    
 export VIRTUAL_CLUSTER_ID=$(aws emr-containers list-virtual-clusters --query "virtualClusters[?name == '$EMR_VIRTUAL_CLUSTER_NAME' && state == 'RUNNING'].id" --output text)
 # export EMR_ROLE_ARN=arn:aws:iam::$ACCOUNTID:role/$EMR_CLUSTER_NAME-execution-role
-export EMR_ROLE_ARN=arn:aws:iam::$ACCOUNTID:role/EMRContainers-JobExecutionRole
+# export EMR_ROLE_ARN=arn:aws:iam::$ACCOUNTID:role/EMRContainers-JobExecutionRole
+export EMR_ROLE_ARN=$EMR_EKS_EXECUTION_ARN
 # export S3BUCKET=$EMR_CLUSTER_NAME-$ACCOUNTID-$AWS_REGION
 # export S3BUCKET=$S3TEST_BUCKET
 export S3BUCKET=$EMR_EKS_BUCKET
