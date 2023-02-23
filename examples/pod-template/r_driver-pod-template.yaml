@@ -5,6 +5,7 @@ kind: Pod
 spec:
   nodeSelector:
     app: sparktest
+    eks.amazonaws.com/capacityType: ON_DEMAND
     # "NodeGroupType": "SparkComputeOptimized"
     # "topology.kubernetes.io/zone": "us-west-2a"    
   volumes:
@@ -18,15 +19,16 @@ spec:
       - name: spark-local-dir-1
         mountPath: /data1
         readOnly: false
-    affinity: 
-        nodeAffinity: 
-            requiredDuringSchedulingIgnoredDuringExecution: 
-              nodeSelectorTerms: 
-              - matchExpressions: 
-                - key: 'eks.amazonaws.com/capacityType' 
-                  operator: In 
-                  values: 
-                  - ON_DEMAND
+    # Spark 开源目前不支持定义 affinity https://spark.apache.org/docs/latest/running-on-kubernetes.html#pod-template
+    # affinity: 
+    #     nodeAffinity: 
+    #         requiredDuringSchedulingIgnoredDuringExecution: 
+    #           nodeSelectorTerms: 
+    #           - matchExpressions: 
+    #             - key: 'eks.amazonaws.com/capacityType' 
+    #               operator: In 
+    #               values: 
+    #               - ON_DEMAND
   # tolerations:
   #   - key: "spark-compute-optimized"
   #     operator: "Exists"
