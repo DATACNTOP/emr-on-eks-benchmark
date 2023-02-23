@@ -19,18 +19,30 @@ iterations=1
 testname=""
 releaseLabel="emr-6.5.0-latest"
 dynamicAllocation=false
+useSpot="false"
 
-while getopts j:t:i:d:r flag
+func() {
+    echo "func:"
+    echo "banchmark.sh [-d true] [-j jobname] [-i iterations] [-r releaseLabel] [-s useSpot] [-t testname]"
+    echo "Description:"
+    echo "Take care of the parameter order"
+    exit -1
+}
+
+while getopts 'd:j:i:r:s:t:z' flag
 do
     case "${flag}" in
-        j) jobname="${OPTARG}";;
-        t) testname="${OPTARG}";;
-        i) iterations=${OPTARG};;
-        r) releaseLabel=${OPTARG};;
-        d) dynamicAllocation=${OPTARG};;
-        
+        d) dynamicAllocation="${OPTARG}" ;;
+        j) jobname="${OPTARG}" ;;
+        i) iterations=${OPTARG} ;;
+        r) releaseLabel=${OPTARG} ;;
+        s) useSpot=${OPTARG} ;;
+        t) testname="${OPTARG}" ;;
+        z) ;;
+        ?) func ;;
     esac
 done
+
 
 jobname="tpcds-benchmark-emr-eks-3t-"$testname
 podNamePrefix=$(echo "$jobname" | awk '{print tolower($0)}')
@@ -41,12 +53,31 @@ echo "Iterations: $iterations";
 echo "EMRReleaseLable: $releaseLabel";
 echo "DynamicAllocation: $dynamicAllocation";
 echo "PodNamePrefix: $podNamePrefix";
+echo "UseSpot: $useSpot";
+echo "ExecutionRoleArn: $EMR_ROLE_ARN";
+echo "VirtualClusterId: $VIRTUAL_CLUSTER_ID";
 
-
-if [ "$testname" ]
+if [ "$testname"  ]
 then
    testname="-$testname"
 fi
+
+executorPodTemplateFile="s3://'$S3BUCKET'/code/emr-on-eks-benchmark/examples/pod-template/r_executor-pod-template.yaml"
+
+if [ "$useSpot" == "true" ]
+then
+   executorPodTemplateFile="s3://$S3BUCKET/code/emr-on-eks-benchmark/examples/pod-template/r_executor-pod-template-spot.yaml"
+fi
+
+echo "ExecutorPodTemplateFile: $executorPodTemplateFile";
+
+EXCUTOR_CORE=4
+EXECUTOR_MEMORY="6g"
+EXECUTOR_NUMBER=47
+
+echo "spark.executor.cores: $EXCUTOR_CORE";
+echo "spark.executor.memory: $EXECUTOR_MEMORY";
+echo "spark.executor.instances: $EXECUTOR_NUMBER";
 
 aws emr-containers start-job-run \
 --virtual-cluster-id $VIRTUAL_CLUSTER_ID \
@@ -65,7 +96,7 @@ aws emr-containers start-job-run \
         "properties": {
           "spark.kubernetes.container.image": "'$ECR_URL'/eks-spark-benchmark:emr6.5",
           "spark.kubernetes.driver.podTemplateFile": "s3://'$S3BUCKET'/code/emr-on-eks-benchmark/examples/pod-template/r_driver-pod-template.yaml",
-          "spark.kubernetes.executor.podTemplateFile": "s3://'$S3BUCKET'/code/emr-on-eks-benchmark/examples/pod-template/r_executor-pod-template.yaml",
+          "spark.kubernetes.executor.podTemplateFile": "'$executorPodTemplateFile'",
           "spark.local.dir" : "/data1,/data2",
           "spark.dynamicAllocation.enabled": "'$dynamicAllocation'",
           "spark.shuffle.service.enabled": "'$dynamicAllocation'",
@@ -76,7 +107,12 @@ aws emr-containers start-job-run \
           "spark.driver.memoryOverhead": "1000",
           "spark.executor.memoryOverhead": "2G",
           "spark.kubernetes.executor.podNamePrefix": "'"$podNamePrefix"'",
-          "spark.executor.defaultJavaOptions": "-verbose:gc -XX:+UseParallelGC -XX:InitiatingHeapOccupancyPercent=70"
+          "spark.executor.defaultJavaOptions": "-verbose:gc -XX:+UseParallelGC -XX:InitiatingHeapOccupancyPercent=70",
+          "spark.decommission.enabled": "true",
+          "spark.storage.decommission.rddBlocks.enabled": "true",
+          "spark.storage.decommission.shuffleBlocks.enabled" : "true",
+          "spark.storage.decommission.enabled": "true",
+          "spark.storage.decommission.fallbackStorage.path": "s3://'$S3BUCKET'/benchmark/fallback/"          
          }}
     ], 
         "monitoringConfiguration": {
@@ -88,5 +124,5 @@ aws emr-containers start-job-run \
       }
     }'
     
-        #   "spark.kubernetes.node.selector.eks.amazonaws.com/nodegroup": "C7g_4",
+#         #   "spark.kubernetes.node.selector.eks.amazonaws.com/nodegroup": "C7g_4",
     

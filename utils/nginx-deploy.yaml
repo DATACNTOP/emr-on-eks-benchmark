@@ -17,10 +17,22 @@ spec:
       labels:
         app: debug
     spec:
-      nodeSelector:
-        type: "karpenter"    
+      # nodeSelector:
+      #   type: "karpenter"    
       containers:
       - image: nginx
         name: nginx
         resources: {}
-status: {}
+      affinity: 
+          nodeAffinity: 
+              requiredDuringSchedulingIgnoredDuringExecution: 
+                nodeSelectorTerms: 
+                - matchExpressions: 
+                  - key: 'eks.amazonaws.com/capacityType' 
+                    operator: In 
+                    values:
+                    - ON_DEMAND
+                  # - key: 'karpenter.sh/capacity-type' 
+                  #   operator: In 
+                  #   values: 
+                  #   - on-demand   
