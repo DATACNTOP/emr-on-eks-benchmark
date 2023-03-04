@@ -79,6 +79,8 @@ echo "spark.executor.cores: $EXCUTOR_CORE";
 echo "spark.executor.memory: $EXECUTOR_MEMORY";
 echo "spark.executor.instances: $EXECUTOR_NUMBER";
 
+#https://spark.apache.org/docs/latest/configuration.html
+
 aws emr-containers start-job-run \
 --virtual-cluster-id $VIRTUAL_CLUSTER_ID \
 --name $jobname \
