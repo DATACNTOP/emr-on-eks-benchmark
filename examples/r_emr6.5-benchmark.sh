@@ -62,7 +62,7 @@ then
    testname="-$testname"
 fi
 
-executorPodTemplateFile="s3://'$S3BUCKET'/code/emr-on-eks-benchmark/examples/pod-template/r_executor-pod-template.yaml"
+executorPodTemplateFile="s3://$S3BUCKET/code/emr-on-eks-benchmark/examples/pod-template/r_executor-pod-template.yaml"
 
 if [ "$useSpot" == "true" ]
 then
@@ -99,7 +99,6 @@ aws emr-containers start-job-run \
           "spark.kubernetes.container.image": "'$ECR_URL'/eks-spark-benchmark:emr6.5",
           "spark.kubernetes.driver.podTemplateFile": "s3://'$S3BUCKET'/code/emr-on-eks-benchmark/examples/pod-template/r_driver-pod-template.yaml",
           "spark.kubernetes.executor.podTemplateFile": "'$executorPodTemplateFile'",
-          "spark.local.dir" : "/data1,/data2",
           "spark.dynamicAllocation.enabled": "'$dynamicAllocation'",
           "spark.shuffle.service.enabled": "'$dynamicAllocation'",
           "spark.network.timeout": "2000s",
@@ -124,7 +123,4 @@ aws emr-containers start-job-run \
             "logStreamNamePrefix":"'"$jobname"'"
         }
       }
-    }'
-    
-#         #   "spark.kubernetes.node.selector.eks.amazonaws.com/nodegroup": "C7g_4",
-    
+    }'    

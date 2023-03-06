@@ -11,7 +11,7 @@ spec:
   volumes:
     - name: spark-local-dir-1
       hostPath:
-        path: /local1
+        path: /local-data
         # type: Directory
   containers:
   - name: spark-kubernetes-executor # Don't change this name. EMR on EKS looking for this name
