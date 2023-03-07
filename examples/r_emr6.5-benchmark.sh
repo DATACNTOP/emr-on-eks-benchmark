@@ -101,8 +101,8 @@ aws emr-containers start-job-run \
           "spark.kubernetes.executor.podTemplateFile": "'$executorPodTemplateFile'",
           "spark.dynamicAllocation.enabled": "'$dynamicAllocation'",
           "spark.shuffle.service.enabled": "'$dynamicAllocation'",
-          "spark.network.timeout": "2000s",
-          "spark.executor.heartbeatInterval": "300s",
+          "spark.network.timeout": "120s",
+          "spark.executor.heartbeatInterval": "60s",
           "spark.kubernetes.executor.limit.cores": "4.3",
           "spark.kubernetes.driver.limit.cores": "4.1",
           "spark.driver.memoryOverhead": "1000",
@@ -115,7 +115,7 @@ aws emr-containers start-job-run \
           "spark.storage.decommission.enabled": "true",
           "spark.storage.decommission.fallbackStorage.path": "s3://'$S3BUCKET'/benchmark/fallback/"          
          }}
-    ], 
+    ],
         "monitoringConfiguration": {
           "persistentAppUI":"ENABLED",
           "cloudWatchMonitoringConfiguration": {
@@ -123,4 +123,4 @@ aws emr-containers start-job-run \
             "logStreamNamePrefix":"'"$jobname"'"
         }
       }
-    }'    
+    }'
