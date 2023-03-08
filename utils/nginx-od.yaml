@@ -17,8 +17,8 @@ spec:
       labels:
         app: debug
     spec:
-      # nodeSelector:
-      #   type: "karpenter"    
+      nodeSelector:
+        type: "karpenter"
       containers:
       - image: nginx
         name: nginx
