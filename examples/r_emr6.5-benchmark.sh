@@ -13,6 +13,7 @@ testname=""
 releaseLabel="emr-6.5.0-latest"
 dynamicAllocation=false
 useSpot="false"
+useBottlerocket="false"
 
 func() {
     echo "func:"
@@ -22,9 +23,10 @@ func() {
     exit -1
 }
 
-while getopts 'd:j:i:r:s:t:z' flag
+while getopts 'b:d:j:i:r:s:t:z' flag
 do
     case "${flag}" in
+        b) useBottlerocket=${OPTARG} ;;
         d) dynamicAllocation="${OPTARG}" ;;
         j) jobname="${OPTARG}" ;;
         i) iterations=${OPTARG} ;;
@@ -49,12 +51,15 @@ echo "PodNamePrefix: $podNamePrefix";
 echo "UseSpot: $useSpot";
 echo "ExecutionRoleArn: $EMR_ROLE_ARN";
 echo "VirtualClusterId: $VIRTUAL_CLUSTER_ID";
+echo "UseBottlerocket: $useBottlerocket";
+
 
 if [ "$testname"  ]
 then
    testname="-$testname"
 fi
 
+driverPodTemplateFile="s3://$S3BUCKET/code/emr-on-eks-benchmark/examples/pod-template/r_driver-pod-template.yaml"
 executorPodTemplateFile="s3://$S3BUCKET/code/emr-on-eks-benchmark/examples/pod-template/r_executor-pod-template.yaml"
 
 if [ "$useSpot" == "true" ]
@@ -62,6 +67,15 @@ then
    executorPodTemplateFile="s3://$S3BUCKET/code/emr-on-eks-benchmark/examples/pod-template/r_executor-pod-template-spot.yaml"
 fi
 
+
+if [ "$useBottlerocket" == "true" ]
+then
+   driverPodTemplateFile="s3://$S3BUCKET/code/emr-on-eks-benchmark/examples/pod-template/r_driver-pod-template-br.yaml"
+   executorPodTemplateFile="s3://$S3BUCKET/code/emr-on-eks-benchmark/examples/pod-template/r_executor-pod-template-br.yaml"
+fi
+
+
+echo "DriverPodTemplateFile: $driverPodTemplateFile";
 echo "ExecutorPodTemplateFile: $executorPodTemplateFile";
 
 EXCUTOR_CORE=4
@@ -90,7 +104,7 @@ aws emr-containers start-job-run \
         "classification": "spark-defaults", 
         "properties": {
           "spark.kubernetes.container.image": "'$ECR_URL'/eks-spark-benchmark:emr6.5",
-          "spark.kubernetes.driver.podTemplateFile": "s3://'$S3BUCKET'/code/emr-on-eks-benchmark/examples/pod-template/r_driver-pod-template.yaml",
+          "spark.kubernetes.driver.podTemplateFile": "'$driverPodTemplateFile'",
           "spark.kubernetes.executor.podTemplateFile": "'$executorPodTemplateFile'",
           "spark.dynamicAllocation.enabled": "'$dynamicAllocation'",
           "spark.shuffle.service.enabled": "'$dynamicAllocation'",
